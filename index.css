@@ -1,0 +1,20 @@
+body{
+    background-color:#DCFBFF;
+    text-align:center;
+    font-size:16px;
+    color:"#221395";
+    font-family:Arial,sans-serif;
+}
+
+h1{
+    color:#22336b;
+}
+
+h2{
+    color:#ad1487;
+}
+
+img{
+    width:200px;
+    height:300px;
+}

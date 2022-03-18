@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="index.css">
+    <title>騒音チェック</title>
+    <script src="/socket.io/socket.io.js"></script>         <!-- socket.io -->
+</head>
+
+<body>
+    <h1><div id="date">0000/00/00 （）</div>のいびき・寝言</h1>
+
+    [音の大きさ]（数値が大きいほど音も大きいよ）<div id="msg">ここに値を表示</div>
+
+    [いびきの回数]<div id="total">0</div>
+
+    <h2>[状態]<div id="msg2"></div></h2>
+
+    <img id="img"><br>
+    <h2>[結果]<div id="msg3">result</div></h2>
+
+
+    <script>
+
+        //各種設定
+        const socket = io();                                //双方向通信サーバに接続
+
+        const date = document.getElementById("date");       //日時
+        const days = ["日", "月", "火", "水", "木", "金", "土"];
+        const msg  = document.getElementById("msg");        //音の大きさ
+        const img  = document.getElementById("img");        //画像
+
+        const msg2   = document.getElementById("msg2");     //状態
+        const result = document.getElementById("msg3");     //結果
+
+        var  count = 0;
+        const total = document.getElementById("total");     //回数
+        var flag = new Boolean(true);
+
+
+        //日付を表示
+        const drawClock = () => {
+            const now  = new Date();
+            const year = now.getFullYear(); 
+            const mon  = now.getMonth() + 1;
+            const day  = now.getDate();
+            const dNo  = now.getDay();                      //曜日番号
+            const week = days[dNo];                         //曜日名配列daysのdNo番の値
+            date.innerHTML = year + "/" + mon + "/" + day + " " + week;
+        };
+
+        drawClock();
+        const timer = setInterval(drawClock, 100);
+
+
+        //いびきを感知する処理
+        socket.on("sensor", (data) => {                     //sensorというsocketが来たら
+            msg.innerHTML = data.sounds;                    //値を表示
+            results();
+            if (data.sounds >= 500) {                       //数値が一定値以上なら
+                msg2.innerHTML = "！いびき発生中！";
+                ibiki();
+                
+            } else {
+                msg2.innerHTML = "すやすや";
+            }
+        }); 
+
+
+        //いびき関数
+        function ibiki(){
+            if( flag == true ) {
+                count += 1;
+                total.innerHTML = count;
+                flag = false;
+            }
+                const d1 = new Date();
+                while (true) {
+                const d2 = new Date();
+                if (d2 - d1 > 1000) {
+                break;
+                }
+                flag = true;
+            };
+            
+        };
+
+
+        //results関数
+        function results(){
+        if ( count <= 2 ) {                                 //騒音が0~2回
+                result.innerHTML = "昨日は静かだったね！偉い！"
+                img.src = "sheep_smile.jpg";
+            } else if ( count <= 5 ) {                      //4回
+                result.innerHTML = "昨日は可もなく不可もなくって感じだったよ。"
+                img.src = "sheep_so-so.jpg";                            
+            } else {                                        //5回以上
+                result.innerHTML = "昨日はいつもよりうるさかったよ～。"
+                img.src = "sheep_sad.jpg";
+            }
+        };
+
+    </script>
+
+</body>
+</html>
